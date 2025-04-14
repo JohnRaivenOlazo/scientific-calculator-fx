@@ -1,9 +1,11 @@
 package ui;
 
 import model.ScientificOperation;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Objects;
 
 public class CalculatorUI {
     private final JTextField display;
@@ -12,67 +14,97 @@ public class CalculatorUI {
     public CalculatorUI() {
         operation = new ScientificOperation();
         JFrame frame = new JFrame("Scientific Calculator");
+        ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/icon.png")));
+        frame.setIconImage(icon.getImage());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 700);
+        frame.setMinimumSize(new Dimension(360, 600));
         frame.setLocationRelativeTo(null);
-        frame.setUndecorated(false);
-        frame.setLayout(new BorderLayout());
+        frame.setLayout(new BorderLayout(10, 10));
 
-        // App Background
-        JPanel container = new JPanel(new BorderLayout());
-        container.setBackground(new Color(20, 20, 20));
-        container.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // Main container
+        JPanel container = new JPanel(new BorderLayout(10, 10));
+        container.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        container.setBackground(new Color(18, 18, 18));
 
         // Display
         display = new JTextField();
-        display.setFont(new Font("Consolas", Font.PLAIN, 32));
+        display.setFont(new Font("Segoe UI", Font.BOLD, 30));
         display.setHorizontalAlignment(SwingConstants.RIGHT);
-        display.setBackground(Color.BLACK);
-        display.setForeground(Color.GREEN);
-        display.setCaretColor(Color.GREEN);
+        display.setBackground(new Color(30, 30, 30));
+        display.setForeground(Color.WHITE);
+        display.setCaretColor(Color.WHITE);
         display.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         display.setEditable(false);
-
         container.add(display, BorderLayout.NORTH);
 
-        // Buttons
-        JPanel buttonsPanel = new JPanel(new GridLayout(6, 4, 12, 12));
-        buttonsPanel.setBackground(new Color(20, 20, 20));
+        // Button panel
+        JPanel buttonPanel = new JPanel(new GridLayout(7, 4, 10, 10));
+        buttonPanel.setBackground(new Color(18, 18, 18));
         String[] buttons = {
-                "7", "8", "9", "/",
-                "4", "5", "6", "*",
-                "1", "2", "3", "-",
-                "0", ".", "=", "+",
-                "(", ")", "^", "sqrt",
-                "sin", "cos", "tan", "log"
+                "C", "(", ")", "/",
+                "7", "8", "9", "*",
+                "4", "5", "6", "-",
+                "1", "2", "3", "+",
+                "0", ".", "=", "^",
+                "sqrt", "sin", "cos", "tan",
+                "log", "ln", "", ""
         };
 
         for (String text : buttons) {
-            buttonsPanel.add(createStyledButton(text));
+            if (text.isEmpty()) {
+                buttonPanel.add(new JLabel()); // placeholder
+            } else {
+                buttonPanel.add(createButton(text));
+            }
         }
 
-        // Bottom Buttons
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 2, 12, 12));
-        bottomPanel.setBackground(new Color(20, 20, 20));
-        bottomPanel.add(createStyledButton("C"));
-        bottomPanel.add(createStyledButton("ln"));
-
-        container.add(buttonsPanel, BorderLayout.CENTER);
-        container.add(bottomPanel, BorderLayout.SOUTH);
-
+        container.add(buttonPanel, BorderLayout.CENTER);
         frame.setContentPane(container);
+        frame.pack();
         frame.setVisible(true);
     }
 
-    private JButton createStyledButton(String label) {
+    private JButton createButton(String label) {
         JButton btn = new JButton(label);
-        btn.setFont(new Font("Consolas", Font.BOLD, 22));
-        btn.setForeground(Color.WHITE);
-        btn.setBackground(new Color(35, 35, 35));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 20));
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setForeground(Color.WHITE);
+        btn.setOpaque(true);
+        btn.setBorderPainted(false);
 
+        // Colors by type
+        if (label.equals("C")) {
+            btn.setBackground(new Color(192, 57, 43)); // Red-orange
+        } else if ("=/*-+^".contains(label)) {
+            btn.setBackground(new Color(44, 62, 80)); // Operators
+        } else if ("0123456789.".contains(label)) {
+            btn.setBackground(new Color(40, 40, 40)); // Digits
+        } else {
+            btn.setBackground(new Color(30, 60, 60)); // Functions
+        }
+
+        // Hover effect
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(btn.getBackground().brighter());
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (label.equals("C")) {
+                    btn.setBackground(new Color(192, 57, 43));
+                } else if ("=/*-+^".contains(label)) {
+                    btn.setBackground(new Color(44, 62, 80));
+                } else if ("0123456789.".contains(label)) {
+                    btn.setBackground(new Color(40, 40, 40));
+                } else {
+                    btn.setBackground(new Color(30, 60, 60));
+                }
+            }
+        });
+
+        // Click logic
         btn.addActionListener(e -> {
             switch (label) {
                 case "=" -> {
@@ -85,18 +117,6 @@ public class CalculatorUI {
                 }
                 case "C" -> display.setText("");
                 default -> display.setText(display.getText() + label);
-            }
-        });
-
-        btn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                btn.setBackground(new Color(60, 60, 60));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                btn.setBackground(new Color(35, 35, 35));
             }
         });
 
