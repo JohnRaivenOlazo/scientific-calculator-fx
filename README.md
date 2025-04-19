@@ -21,7 +21,7 @@ A powerful and stylish JavaFX-based scientific calculator built with Object-Orie
 - Factor quadratic expressions
 - Expand binomials like `(x+2)(x-5)`
 
-🧲 **Memory Functions**
+🧲 **Memory Functions**r
 - `M+` – Add to memory
 - `M-` – Subtract from memory
 - `MR` – Recall memory
