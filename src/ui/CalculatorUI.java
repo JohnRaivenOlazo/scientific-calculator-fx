@@ -1,125 +1,146 @@
 package ui;
 
+import javafx.application.Application;
+import javafx.geometry.*;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import javafx.scene.image.Image;
 import model.ScientificOperation;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
 import java.util.Objects;
 
-public class CalculatorUI {
-    private final JTextField display;
-    private final ScientificOperation operation;
+public class CalculatorUI extends Application {
+    private final TextField display = new TextField();
+    private final ScientificOperation op = new ScientificOperation();
 
-    public CalculatorUI() {
-        operation = new ScientificOperation();
-        JFrame frame = new JFrame("Scientific Calculator");
-        ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/icon.png")));
-        frame.setIconImage(icon.getImage());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setMinimumSize(new Dimension(360, 600));
-        frame.setLocationRelativeTo(null);
-        frame.setLayout(new BorderLayout(10, 10));
-
-        // Main container
-        JPanel container = new JPanel(new BorderLayout(10, 10));
-        container.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        container.setBackground(new Color(18, 18, 18));
-
-        // Display
-        display = new JTextField();
-        display.setFont(new Font("Segoe UI", Font.BOLD, 30));
-        display.setHorizontalAlignment(SwingConstants.RIGHT);
-        display.setBackground(new Color(30, 30, 30));
-        display.setForeground(Color.WHITE);
-        display.setCaretColor(Color.WHITE);
-        display.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+    @Override
+    public void start(Stage primaryStage) {
         display.setEditable(false);
-        container.add(display, BorderLayout.NORTH);
+        display.setPrefHeight(50);
+        display.setStyle("-fx-font-size: 18px;");
+        display.setMaxWidth(Double.MAX_VALUE);
 
-        // Button panel
-        JPanel buttonPanel = new JPanel(new GridLayout(7, 4, 10, 10));
-        buttonPanel.setBackground(new Color(18, 18, 18));
-        String[] buttons = {
-                "C", "(", ")", "/",
-                "7", "8", "9", "*",
-                "4", "5", "6", "-",
-                "1", "2", "3", "+",
-                "0", ".", "=", "^",
-                "sqrt", "sin", "cos", "tan",
-                "log", "ln", "", ""
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/resources/icon.png"))));
+
+        GridPane grid = new GridPane();
+        grid.setHgap(5);
+        grid.setVgap(5);
+        grid.setPadding(new Insets(10));
+        grid.setAlignment(Pos.CENTER);
+
+        String[][] btns = {
+                {"7","8","9","/","sin"},
+                {"4","5","6","*","cos"},
+                {"1","2","3","-","tan"},
+                {"0",".","^","+","log"},
+                {"(",")","sqrt","ln","="},
+                {"C","CE","M+","M-","MR"},
+                {"MC","Solve","Factor","Expand","Theme"}
         };
 
-        for (String text : buttons) {
-            if (text.isEmpty()) {
-                buttonPanel.add(new JLabel()); // placeholder
-            } else {
-                buttonPanel.add(createButton(text));
+        int cols = btns[0].length;
+        for (int i = 0; i < cols; i++) {
+            ColumnConstraints cc = new ColumnConstraints();
+            cc.setHgrow(Priority.ALWAYS);
+            cc.setPercentWidth(100.0 / cols);
+            grid.getColumnConstraints().add(cc);
+        }
+
+        for (int r = 0; r < btns.length; r++) {
+            RowConstraints rc = new RowConstraints();
+            rc.setVgrow(Priority.ALWAYS);
+            grid.getRowConstraints().add(rc);
+
+            for (int c = 0; c < btns[r].length; c++) {
+                String text = btns[r][c];
+                Button b = new Button(text);
+                b.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                b.setTooltip(new Tooltip(switch (text) {
+                    case "CE" -> "Clear Entry";
+                    case "C" -> "All Clear";
+                    case "MR" -> "Memory Recall";
+                    case "MC" -> "Memory Clear";
+                    case "M+" -> "Memory Add";
+                    case "M-" -> "Memory Subtract";
+                    case "Solve" -> "Solve ax^2+bx+c=0";
+                    case "Factor" -> "Factor ax^2+bx+c";
+                    case "Expand" -> "Expand (x+a)(x+b)";
+                    case "Theme" -> "Toggle Light/Dark Mode";
+                    default -> text;
+                }));
+                grid.add(b, c, r);
+                b.setOnAction(e -> onButton(text));
             }
         }
 
-        container.add(buttonPanel, BorderLayout.CENTER);
-        frame.setContentPane(container);
-        frame.pack();
-        frame.setVisible(true);
+        VBox root = new VBox(10, display, grid);
+        root.setPadding(new Insets(10));
+        VBox.setVgrow(grid, Priority.ALWAYS);
+
+        Scene scene = new Scene(root, 500, 500);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("calculator.css")).toExternalForm());
+
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Scientific Calculator FX");
+        primaryStage.setMinWidth(400);
+        primaryStage.setMinHeight(500);
+        primaryStage.setResizable(true);
+        primaryStage.show();
+
+        // Enter‑key handling
+        scene.setOnKeyPressed(k -> {
+            if (k.getCode() == KeyCode.ENTER) onButton("=");
+        });
     }
 
-    private JButton createButton(String label) {
-        JButton btn = new JButton(label);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        btn.setFocusPainted(false);
-        btn.setForeground(Color.WHITE);
-        btn.setOpaque(true);
-        btn.setBorderPainted(false);
-
-        // Colors by type
-        if (label.equals("C")) {
-            btn.setBackground(new Color(192, 57, 43)); // Red-orange
-        } else if ("=/*-+^".contains(label)) {
-            btn.setBackground(new Color(44, 62, 80)); // Operators
-        } else if ("0123456789.".contains(label)) {
-            btn.setBackground(new Color(40, 40, 40)); // Digits
-        } else {
-            btn.setBackground(new Color(30, 60, 60)); // Functions
-        }
-
-        // Hover effect
-        btn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                btn.setBackground(btn.getBackground().brighter());
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                if (label.equals("C")) {
-                    btn.setBackground(new Color(192, 57, 43));
-                } else if ("=/*-+^".contains(label)) {
-                    btn.setBackground(new Color(44, 62, 80));
-                } else if ("0123456789.".contains(label)) {
-                    btn.setBackground(new Color(40, 40, 40));
-                } else {
-                    btn.setBackground(new Color(30, 60, 60));
+    private void onButton(String txt) {
+        try {
+            switch (txt) {
+                case "C" -> display.clear();
+                case "CE" -> {
+                    String t = display.getText();
+                    if (!t.isEmpty()) display.setText(t.substring(0, t.length() - 1));
                 }
-            }
-        });
-
-        // Click logic
-        btn.addActionListener(e -> {
-            switch (label) {
                 case "=" -> {
-                    try {
-                        double result = operation.execute(display.getText());
-                        display.setText(String.valueOf(result));
-                    } catch (Exception ex) {
-                        display.setText("Error");
+                    double res = op.execute(display.getText());
+                    display.setText(String.valueOf(res));
+                }
+                case "M+" -> ScientificOperation.memoryAdd(op.execute(display.getText()));
+                case "M-" -> ScientificOperation.memorySubtract(op.execute(display.getText()));
+                case "MR" -> display.setText(String.valueOf(ScientificOperation.memoryRecall()));
+                case "MC" -> ScientificOperation.memoryClear();
+                case "Solve", "Factor", "Expand" -> {
+                    String expr = display.getText();
+                    String out = switch (txt) {
+                        case "Solve" -> ScientificOperation.solveQuadratic(expr);
+                        case "Factor" -> ScientificOperation.factorQuadratic(expr);
+                        default -> ScientificOperation.expandBinomial(expr);
+                    };
+                    display.setText(out);
+                }
+                case "Theme" -> {
+                    Scene s = display.getScene();
+                    String light = Objects.requireNonNull(getClass().getResource("calculator.css")).toExternalForm();
+                    String dark = Objects.requireNonNull(getClass().getResource("calculator-dark.css")).toExternalForm();
+                    if (s.getStylesheets().contains(light)) {
+                        s.getStylesheets().clear();
+                        s.getStylesheets().add(dark);
+                    } else {
+                        s.getStylesheets().clear();
+                        s.getStylesheets().add(light);
                     }
                 }
-                case "C" -> display.setText("");
-                default -> display.setText(display.getText() + label);
+                default -> display.appendText(txt);
             }
-        });
+        } catch (Exception ex) {
+            display.setText("Error");
+        }
+    }
 
-        return btn;
+    public static void main(String[] args) {
+        launch(args);
     }
 }
