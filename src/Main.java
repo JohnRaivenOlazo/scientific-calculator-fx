@@ -1,7 +1,7 @@
-import javafx.application.Application;
+import ui.Calculator;
 
 public class Main {
     public static void main(String[] args) {
-        Application.launch(ui.CalculatorUI.class, args);
+        Calculator.main(args);
     }
 }

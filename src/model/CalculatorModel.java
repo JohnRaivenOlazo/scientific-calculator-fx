@@ -1,25 +1,34 @@
 package model;
 
-import AppInterface.Operation;
 import java.util.regex.*;
 
-public class ScientificOperation implements Operation {
-    // ─── Memory ─────────────────────────────────────────────
+public class CalculatorModel {
+    private String displayText = "";
     private static double memory = 0.0;
-    public static void memoryAdd(double v)       { memory += v; }
-    public static void memorySubtract(double v)  { memory -= v; }
-    public static double memoryRecall()          { return memory; }
-    public static void memoryClear()             { memory = 0.0; }
 
-    // ─── Numeric Eval ───────────────────────────────────────
-    @Override
-    public double execute(String input) throws Exception {
+    public String getDisplayText() { return displayText; }
+    public void setDisplayText(String text) { displayText = text; }
+    public void appendToDisplay(String text) { displayText += text; }
+    public void clearDisplay() { displayText = ""; }
+    public void clearLastEntry() {
+        if (!displayText.isEmpty()) {
+            displayText = displayText.substring(0, displayText.length() - 1);
+        }
+    }
+
+    public static void memoryAdd(double v) { memory += v; }
+    public static void memorySubtract(double v) { memory -= v; }
+    public static double memoryRecall() { return memory; }
+    public static void memoryClear() { memory = 0.0; }
+
+    public String calculate() throws Exception {
         try {
-            return eval(input);
+            return String.valueOf(eval(displayText));
         } catch (Exception e) {
             throw new Exception("Invalid Expression");
         }
     }
+
     private double eval(String expr) {
         return new Object() {
             int pos = -1, ch;
@@ -38,7 +47,7 @@ public class ScientificOperation implements Operation {
             double parseExpression() {
                 double x = parseTerm();
                 for (;;) {
-                    if      (eat('+')) x += parseTerm();
+                    if (eat('+')) x += parseTerm();
                     else if (eat('-')) x -= parseTerm();
                     else return x;
                 }
@@ -46,7 +55,7 @@ public class ScientificOperation implements Operation {
             double parseTerm() {
                 double x = parseFactor();
                 for (;;) {
-                    if      (eat('*')) x *= parseFactor();
+                    if (eat('*')) x *= parseFactor();
                     else if (eat('/')) x /= parseFactor();
                     else return x;
                 }
@@ -68,12 +77,12 @@ public class ScientificOperation implements Operation {
                     x = parseFactor();
                     x = switch(func) {
                         case "sqrt" -> Math.sqrt(x);
-                        case "sin"  -> Math.sin(Math.toRadians(x));
-                        case "cos"  -> Math.cos(Math.toRadians(x));
-                        case "tan"  -> Math.tan(Math.toRadians(x));
-                        case "log"  -> Math.log10(x);
-                        case "ln"   -> Math.log(x);
-                        default     -> throw new RuntimeException("Unknown func: "+func);
+                        case "sin" -> Math.sin(Math.toRadians(x));
+                        case "cos" -> Math.cos(Math.toRadians(x));
+                        case "tan" -> Math.tan(Math.toRadians(x));
+                        case "log" -> Math.log10(x);
+                        case "ln" -> Math.log(x);
+                        default -> throw new RuntimeException("Unknown func: "+func);
                     };
                 } else throw new RuntimeException("Unexpected: "+(char)ch);
                 if (eat('^')) x = Math.pow(x, parseFactor());
@@ -82,11 +91,9 @@ public class ScientificOperation implements Operation {
         }.parse();
     }
 
-    // ─── Algebraic Helpers ───────────────────────────────────
-    /** Solve ax² + bx + c = 0 (format: "ax^2+bx+c=0") */
-    public static String solveQuadratic(String eq) {
+    public String solveQuadratic() {
         try {
-            String left = eq.split("=")[0].replaceAll("\\s","");
+            String left = displayText.split("=")[0].replaceAll("\\s","");
             Pattern p = Pattern.compile("([+-]?\\d*\\.?\\d*)x\\^2([+-]?\\d*\\.?\\d*)x([+-]?\\d*\\.?\\d*)");
             Matcher m = p.matcher(left);
             if (!m.matches()) return "Invalid quadratic";
@@ -104,9 +111,8 @@ public class ScientificOperation implements Operation {
         }
     }
 
-    /** Factor ax² + bx + c into (x−r1)(x−r2) if possible */
-    public static String factorQuadratic(String poly) {
-        String sol = solveQuadratic(poly+"=0");
+    public String factorQuadratic() {
+        String sol = solveQuadratic();
         if (sol.startsWith("x=")) {
             String[] parts = sol.substring(2).split(",");
             double r1 = Double.parseDouble(parts[0]);
@@ -116,16 +122,14 @@ public class ScientificOperation implements Operation {
         return sol;
     }
 
-    /** Expand (x+a)(x+b) into x²+(a+b)x+ab */
-    public static String expandBinomial(String binom) {
+    public String expandBinomial() {
         try {
             Pattern p = Pattern.compile("\\(x([+-]?\\d*\\.?\\d*)\\)\\(x([+-]?\\d*\\.?\\d*)\\)");
-            Matcher m = p.matcher(binom.replaceAll("\\s",""));
+            Matcher m = p.matcher(displayText.replaceAll("\\s",""));
             if (!m.matches()) return "Invalid form";
             double a = m.group(1).isEmpty()||m.group(1).equals("+")?1:
                     m.group(1).equals("-")?-1:Double.parseDouble(m.group(1));
             double b = Double.parseDouble(m.group(2));
-            // x^2 + (a+b)x + a*b
             return String.format("x^2%+,.4fx%+,.4f", a+b, a*b);
         } catch(Exception e) {
             return "Error";
