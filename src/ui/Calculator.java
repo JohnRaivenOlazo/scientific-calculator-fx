@@ -15,10 +15,6 @@ public class Calculator extends Application {
     }
 
     public static void main(String[] args) {
-        // Add required JavaFX modules
-        System.setProperty("javafx.modules", "javafx.controls,javafx.graphics");
         launch(args);
     }
-
-    
 }
