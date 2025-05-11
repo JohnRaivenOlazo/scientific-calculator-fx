@@ -2,7 +2,7 @@ package controller;
 
 import javafx.scene.input.KeyCode;
 import model.CalculatorModel;
-import ui.CalculatorView;
+import view.CalculatorView;
 
 public class CalculatorController {
     private final CalculatorModel model;
