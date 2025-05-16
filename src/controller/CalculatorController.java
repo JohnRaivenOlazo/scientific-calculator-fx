@@ -29,8 +29,6 @@ public class CalculatorController {
             {"MC","Solve","Factor","Expand"}
         };
 
-        System.out.println(Arrays.deepToString(buttons[1]));
-
         for (String[] row : buttons) {
             for (String buttonText : row) {
                 if (!buttonText.isEmpty()) {

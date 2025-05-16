@@ -45,12 +45,12 @@ public class CalculatorView {
 
         String[][] btns = {
             {"7","8","9","/","sin"},
-            {"4","5","6","*","cos"},
+            {"4", "5", "6", "*", "cos"},
             {"1","2","3","-","tan"},
             {"0",".","^","+","log"},
             {"(",")","sqrt","ln","="},
             {"C","CE","M+","M-","MR"},
-            {"MC","Solve","Factor","Expand",""}
+            {"MC","Solve","Factor","Expand"}
         };
 
         setupGridConstraints(grid, btns[0].length);
@@ -88,7 +88,7 @@ public class CalculatorView {
 
     private String getTooltipText(String text) {
         return switch (text) {
-            case "CE" -> "Clear Entry";
+            case "CE" -> "Clear Last Entry";
             case "C" -> "All Clear";
             case "MR" -> "Memory Recall";
             case "MC" -> "Memory Clear";
