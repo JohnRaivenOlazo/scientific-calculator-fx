@@ -71,7 +71,6 @@ public class CalculatorView {
             RowConstraints rc = new RowConstraints();
             rc.setVgrow(Priority.ALWAYS);
             grid.getRowConstraints().add(rc);
-
             for (int c = 0; c < btns[r].length; c++) {
                 String text = btns[r][c];
                 if (!text.isEmpty()) {
@@ -103,6 +102,9 @@ public class CalculatorView {
     private Scene createScene(GridPane grid) {
         VBox root = new VBox(10, display, grid);
         root.setPadding(new Insets(10));
+        root.setStyle(
+                "-fx-background-color: #000; -fx-color: #000"
+        );
         VBox.setVgrow(grid, Priority.ALWAYS);
         return new Scene(root, 500, 500);
     }
