@@ -5,15 +5,15 @@ import model.CalculatorModel;
 import view.CalculatorView;
 
 public class Main extends Application {
-    @Override
-    public void start(Stage primaryStage) {
-        CalculatorModel model = new CalculatorModel();
-        CalculatorView view = new CalculatorView(primaryStage);
-        new CalculatorController(model, view);
-        view.show();
-    }
-
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void start(Stage stage) {
+        CalculatorModel model = new CalculatorModel();
+        CalculatorView view = new CalculatorView(stage);
+        new CalculatorController(model, view);
+        view.show();
     }
 }

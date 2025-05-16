@@ -4,6 +4,8 @@ import javafx.scene.input.KeyCode;
 import model.CalculatorModel;
 import view.CalculatorView;
 
+import java.util.Arrays;
+
 public class CalculatorController {
     private final CalculatorModel model;
     private final CalculatorView view;
@@ -12,6 +14,7 @@ public class CalculatorController {
         this.model = model;
         this.view = view;
         initializeButtonHandlers();
+
         initializeKeyHandlers();
     }
 
@@ -25,6 +28,8 @@ public class CalculatorController {
             {"C","CE","M+","M-","MR"},
             {"MC","Solve","Factor","Expand"}
         };
+
+        System.out.println(Arrays.deepToString(buttons[1]));
 
         for (String[] row : buttons) {
             for (String buttonText : row) {

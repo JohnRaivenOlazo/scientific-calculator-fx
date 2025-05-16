@@ -111,7 +111,8 @@ public class CalculatorView {
     }
 
     private void setupStage() {
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/resources/icon.png"))));
+        Image icon = new Image("view/icon.png");
+        stage.getIcons().add(icon);
         stage.setScene(scene);
         stage.setTitle("Scientific Calculator FX");
         stage.setMinWidth(400);
