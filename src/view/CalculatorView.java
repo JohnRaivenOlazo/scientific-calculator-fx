@@ -11,7 +11,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class CalculatorView {
     private final Map<String, Button> buttons = new HashMap<>();
@@ -105,9 +104,7 @@ public class CalculatorView {
         VBox root = new VBox(10, display, grid);
         root.setPadding(new Insets(10));
         VBox.setVgrow(grid, Priority.ALWAYS);
-        Scene scene = new Scene(root, 500, 500);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("style.css")).toExternalForm());
-        return scene;
+        return new Scene(root, 500, 500);
     }
 
     private void setupStage() {
