@@ -14,7 +14,6 @@ public class CalculatorController {
         this.model = model;
         this.view = view;
         initializeButtonHandlers();
-
         initializeKeyHandlers();
     }
 
