@@ -87,51 +87,50 @@ public class CalculatorController {
 
     private void handleCoefficientInput(String text) {
         try {
-            if (text.equals("Next")) {
-                double value = Double.parseDouble(model.getDisplayText());
+            switch (text) {
+                case "Next" -> {
+                    double value = Double.parseDouble(model.getDisplayText());
 
-                if (currentOperation.equals("Expand")) {
-                    if (coefficientIndex == 0) {
-                        model.setBinomialFactors(value, 0);
-                        coefficientIndex++;
-                        model.clearDisplay();
-                        view.setDisplayText("Enter second factor:");
-                    } else {
-                        model.setBinomialFactors(model.getBinomialFactors()[0], value);
-                        inputMode = false;
-                        model.setDisplayText(model.expandBinomial());
-                    }
-                } else {
-                    if (coefficientIndex == 0) {
-                        model.setQuadraticCoefficients(value, 0, 0);
-                        coefficientIndex++;
-                        model.clearDisplay();
-                        view.setDisplayText("Enter x coefficient:");
-                    } else if (coefficientIndex == 1) {
-                        model.setQuadraticCoefficients(model.getQuadraticCoefficients()[0], value, 0);
-                        coefficientIndex++;
-                        model.clearDisplay();
-                        view.setDisplayText("Enter constant:");
-                    } else {
-                        model.setQuadraticCoefficients(
-                                model.getQuadraticCoefficients()[0],
-                                model.getQuadraticCoefficients()[1],
-                                value
-                        );
-                        inputMode = false;
-                        if (currentOperation.equals("Solve")) {
-                            model.setDisplayText(model.solveQuadratic());
+                    if (currentOperation.equals("Expand")) {
+                        if (coefficientIndex == 0) {
+                            model.setBinomialFactors(value, 0);
+                            coefficientIndex++;
+                            model.clearDisplay();
+                            view.setDisplayText("Enter second factor:");
                         } else {
-                            model.setDisplayText(model.factorQuadratic());
+                            model.setBinomialFactors(model.getBinomialFactors()[0], value);
+                            inputMode = false;
+                            model.setDisplayText(model.expandBinomial());
+                        }
+                    } else {
+                        if (coefficientIndex == 0) {
+                            model.setQuadraticCoefficients(value, 0, 0);
+                            coefficientIndex++;
+                            model.clearDisplay();
+                            view.setDisplayText("Enter x coefficient:");
+                        } else if (coefficientIndex == 1) {
+                            model.setQuadraticCoefficients(model.getQuadraticCoefficients()[0], value, 0);
+                            coefficientIndex++;
+                            model.clearDisplay();
+                            view.setDisplayText("Enter constant:");
+                        } else {
+                            model.setQuadraticCoefficients(
+                                    model.getQuadraticCoefficients()[0],
+                                    model.getQuadraticCoefficients()[1],
+                                    value
+                            );
+                            inputMode = false;
+                            if (currentOperation.equals("Solve")) {
+                                model.setDisplayText(model.solveQuadratic());
+                            } else {
+                                model.setDisplayText(model.factorQuadratic());
+                            }
                         }
                     }
                 }
-            } else if (text.equals("C")) {
-                model.clearDisplay();
-            } else if (text.equals("CE")) {
-                model.clearLastEntry();
-            } else {
-                model.appendToDisplay(text);
+                case "C" -> model.clearDisplay();
+                case "CE" -> model.clearLastEntry();
+                default -> model.appendToDisplay(text);
             }
             view.setDisplayText(model.getDisplayText());
         } catch (Exception e) {

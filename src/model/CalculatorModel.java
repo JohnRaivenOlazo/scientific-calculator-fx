@@ -1,12 +1,10 @@
 package model;
 
-import java.util.regex.*;
-
 public class CalculatorModel {
     private String displayText = "";
     private static double memory = 0.0;
-    private double[] quadraticCoefficients = new double[3];
-    private double[] binomialFactors = new double[2];
+    private final double[] quadraticCoefficients = new double[3];
+    private final double[] binomialFactors = new double[2];
 
     public String getDisplayText() { return displayText; }
     public void setDisplayText(String text) { displayText = text; }

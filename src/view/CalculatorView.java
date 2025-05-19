@@ -112,6 +112,8 @@ public class CalculatorView {
     }
 
     private void setupStage() {
+        Image icon = new Image("view/icon.png");
+        stage.getIcons().add(icon);
         stage.setScene(scene);
         stage.setTitle("Scientific Calculator FX");
         stage.setMinWidth(350);
@@ -122,7 +124,7 @@ public class CalculatorView {
     public void setButtonHandler(String buttonText, Runnable handler) {
         Button button = buttons.get(buttonText);
         if (button != null) {
-            button.setOnAction(e -> handler.run());
+            button.setOnAction(_ -> handler.run());
         }
     }
 
