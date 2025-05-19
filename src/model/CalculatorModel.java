@@ -5,6 +5,8 @@ import java.util.regex.*;
 public class CalculatorModel {
     private String displayText = "";
     private static double memory = 0.0;
+    private double[] quadraticCoefficients = new double[3];
+    private double[] binomialFactors = new double[2];
 
     public String getDisplayText() { return displayText; }
     public void setDisplayText(String text) { displayText = text; }
@@ -91,48 +93,65 @@ public class CalculatorModel {
         }.parse();
     }
 
+    public void setQuadraticCoefficients(double a, double b, double c) {
+        quadraticCoefficients[0] = a;
+        quadraticCoefficients[1] = b;
+        quadraticCoefficients[2] = c;
+    }
+
+    public double[] getQuadraticCoefficients() {
+        return quadraticCoefficients;
+    }
+
+    public void setBinomialFactors(double a, double b) {
+        binomialFactors[0] = a;
+        binomialFactors[1] = b;
+    }
+
+    public double[] getBinomialFactors() {
+        return binomialFactors;
+    }
+
     public String solveQuadratic() {
         try {
-            String left = displayText.split("=")[0].replaceAll("\\s","");
-            Pattern p = Pattern.compile("([+-]?\\d*\\.?\\d*)x\\^2([+-]?\\d*\\.?\\d*)x([+-]?\\d*\\.?\\d*)");
-            Matcher m = p.matcher(left);
-            if (!m.matches()) return "Invalid quadratic";
-            double a = m.group(1).isEmpty()||m.group(1).equals("+")?1:
-                    m.group(1).equals("-")?-1:Double.parseDouble(m.group(1));
-            double b = Double.parseDouble(m.group(2));
-            double c = Double.parseDouble(m.group(3));
+            double a = quadraticCoefficients[0];
+            double b = quadraticCoefficients[1];
+            double c = quadraticCoefficients[2];
+
+            if (a == 0) return "Not quadratic";
+
             double d = b*b - 4*a*c;
-            if (d<0) return "No real roots";
+            if (d < 0) return "No real roots";
             double r1 = (-b + Math.sqrt(d)) / (2*a);
             double r2 = (-b - Math.sqrt(d)) / (2*a);
             return String.format("x=%.4f, %.4f", r1, r2);
         } catch(Exception e) {
-            return "Error";
+            return "Error: Set coefficients first";
         }
     }
 
     public String factorQuadratic() {
-        String sol = solveQuadratic();
-        if (sol.startsWith("x=")) {
-            String[] parts = sol.substring(2).split(",");
-            double r1 = Double.parseDouble(parts[0]);
-            double r2 = Double.parseDouble(parts[1].trim());
-            return String.format("(x%+,.4f)(x%+,.4f)", -r1, -r2);
+        try {
+            String sol = solveQuadratic();
+            if (sol.startsWith("x=")) {
+                String[] parts = sol.substring(2).split(",");
+                double r1 = Double.parseDouble(parts[0]);
+                double r2 = Double.parseDouble(parts[1].trim());
+                return String.format("(x%+,.4f)(x%+,.4f)", -r1, -r2);
+            }
+            return sol;
+        } catch(Exception e) {
+            return "Error: Set coefficients first";
         }
-        return sol;
     }
 
     public String expandBinomial() {
         try {
-            Pattern p = Pattern.compile("\\(x([+-]?\\d*\\.?\\d*)\\)\\(x([+-]?\\d*\\.?\\d*)\\)");
-            Matcher m = p.matcher(displayText.replaceAll("\\s",""));
-            if (!m.matches()) return "Invalid form";
-            double a = m.group(1).isEmpty()||m.group(1).equals("+")?1:
-                    m.group(1).equals("-")?-1:Double.parseDouble(m.group(1));
-            double b = Double.parseDouble(m.group(2));
+            double a = binomialFactors[0];
+            double b = binomialFactors[1];
             return String.format("x^2%+,.4fx%+,.4f", a+b, a*b);
         } catch(Exception e) {
-            return "Error";
+            return "Error: Set factors first";
         }
     }
 }

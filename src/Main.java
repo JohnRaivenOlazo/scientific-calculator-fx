@@ -5,7 +5,8 @@ import model.CalculatorModel;
 import view.CalculatorView;
 
 public class Main extends Application {
-    public static void main(String[] args) {
+
+    public static void main(String[] args){
         launch(args);
     }
 
@@ -14,6 +15,7 @@ public class Main extends Application {
         CalculatorModel model = new CalculatorModel();
         CalculatorView view = new CalculatorView(stage);
         new CalculatorController(model, view);
+
         view.show();
     }
 }
